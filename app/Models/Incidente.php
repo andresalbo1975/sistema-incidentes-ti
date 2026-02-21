@@ -12,7 +12,5 @@ class Incidente extends Model
         'descripcion',
         'es_incidente_mayor',
         'estado',
-        'id_categoria', // Asegúrate de que estos coincidan con tu migración
-        'id_prioridad'
     ];
 }

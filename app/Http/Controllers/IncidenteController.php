@@ -20,41 +20,33 @@ class IncidenteController extends Controller
     }
 
     public function store(Request $request)
-   // Generamos el número de ticket
-    $ultimoId = \App\Models\Incidente::max('id') ?? 0;
-    $ticketNro = 'TIC-' . date('Y') . '-' . str_pad($ultimoId + 1, 4, '0', STR_PAD_LEFT);
-
-    // Creamos el registro usando los datos del request
-    \App\Models\Incidente::create([
-        'ticket_nro' => $ticketNro,
-        'descripcion' => $request->descripcion, // <--- Verifica que el nombre coincida con el textarea
-        'es_incidente_mayor' => $request->has('es_incidente_mayor'),
-        'estado' => 'Registrado',
-    ]);
-
-    return redirect()->route('incidentes.index');
-}
+    {
+        $request->validate([
+            'descripcion' => 'required|string',
+        ]);
 
         try {
             DB::beginTransaction();
 
+            // Cálculo del número de ticket
             $ultimoId = Incidente::max('id') ?? 0;
             $ticketNro = 'TIC-' . date('Y') . '-' . str_pad($ultimoId + 1, 4, '0', STR_PAD_LEFT);
 
+            // Creación del registro
             $incidente = new Incidente();
-            $incidente->descripcion = $request->input('descripcion'); // Verifica que el nombre coincida
             $incidente->ticket_nro = $ticketNro;
-            $incidente->descripcion = $request->descripcion;
+            $incidente->descripcion = $request->descripcion; // Captura del textarea
             $incidente->es_incidente_mayor = $request->has('es_incidente_mayor');
             $incidente->estado = 'Registrado';
             $incidente->save();
 
             DB::commit();
 
-            return redirect()->route('incidentes.index')->with('success', "Ticket {$ticketNro} creado.");
+            return redirect()->route('incidentes.index')->with('success', 'Incidente ' . $ticketNro . ' creado con éxito.');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors('Error: ' . $e->getMessage());
+            return back()->withErrors('Error al guardar: ' . $e->getMessage());
         }
     }
 }
