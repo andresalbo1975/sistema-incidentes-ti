@@ -20,12 +20,20 @@ class IncidenteController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'descripcion' => 'required|string',
-            'id_categoria' => 'required|integer',
-            'id_prioridad' => 'required|integer',
-        ]);
+   // Generamos el número de ticket
+    $ultimoId = \App\Models\Incidente::max('id') ?? 0;
+    $ticketNro = 'TIC-' . date('Y') . '-' . str_pad($ultimoId + 1, 4, '0', STR_PAD_LEFT);
+
+    // Creamos el registro usando los datos del request
+    \App\Models\Incidente::create([
+        'ticket_nro' => $ticketNro,
+        'descripcion' => $request->descripcion, // <--- Verifica que el nombre coincida con el textarea
+        'es_incidente_mayor' => $request->has('es_incidente_mayor'),
+        'estado' => 'Registrado',
+    ]);
+
+    return redirect()->route('incidentes.index');
+}
 
         try {
             DB::beginTransaction();
@@ -34,6 +42,7 @@ class IncidenteController extends Controller
             $ticketNro = 'TIC-' . date('Y') . '-' . str_pad($ultimoId + 1, 4, '0', STR_PAD_LEFT);
 
             $incidente = new Incidente();
+            $incidente->descripcion = $request->input('descripcion'); // Verifica que el nombre coincida
             $incidente->ticket_nro = $ticketNro;
             $incidente->descripcion = $request->descripcion;
             $incidente->es_incidente_mayor = $request->has('es_incidente_mayor');
