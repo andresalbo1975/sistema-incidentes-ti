@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers; // Asegúrate que solo diga App una vez
 
 use App\Models\Incidente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
-class IncidenteController extends Controller
+class IncidenteController extends Controller 
+    // ... resto del código que te pasé antes
 {
     public function index()
     {
